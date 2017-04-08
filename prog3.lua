@@ -14,6 +14,7 @@ Date: Spring 2017
 require "ip"   -- this loads the packed distributable
 local viz = require "visual"
 local il = require "il"
+local transforms = require "transforms"
 -- for k,v in pairs( il ) do io.write( k .. "\n" ) end
 
 -- load images listed on command line
@@ -30,7 +31,7 @@ local cmarg3 = {name = "interpolation", type = "string", displaytype = "combo", 
 
 imageMenu("Weiss",
   {
-    {"Resize", il.rescale,
+    {"Resize", transforms.scale,
       {{name = "rows", type = "number", displaytype = "spin", default = 1024, min = 1, max = 16384},
        {name = "cols", type = "number", displaytype = "spin", default = 1024, min = 1, max = 16384}, cmarg3}},
     {"Rotate", il.rotate,
