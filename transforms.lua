@@ -19,13 +19,14 @@ local function scale( img, rows, cols )
 end
 
 local function rotate( img, deg )
-  local rows, cols = img.height, img.width
   local rad = deg * (math.pi / 180)
-  local newImg = image.flat(cols*2, rows*2, 0)
+  local rows = img.height --calculate with degree?
+  local cols = img.width -- calculate with degree?
+  local newImg = image.flat(cols, rows, 0)
   local newX, newY
   
-  for r = 0, rows - 2 do
-    for c = 0, cols - 2 do
+  for r = 0, rows - 1 do
+    for c = 0, cols - 1 do
       --set the fill to the background color
       newImg:at(c,r).r =  240
       newImg:at(c,r).g =  240
@@ -33,12 +34,12 @@ local function rotate( img, deg )
     end
   end
   
-  for r = 0, rows - 2 do
-    for c = 0, cols -2 do
+  for r = 0, rows - 1 do
+    for c = 0, cols -1 do
       newX = math.cos(rad)*c - math.sin(rad)*r
       newY = math.sin(rad)*c + math.cos(rad)*r
       
-      newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, newX, newY)
+      --newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, newX, newY)
     end
   end
   
