@@ -2,6 +2,7 @@ require "ip"
 local color = require "il.color"
 local image = require "image"
 local interpolate = require "interpolate"
+
 local function scale( img, rows, cols )
   local scaleX, scaleY
   scaleX = cols/img.width
@@ -16,8 +17,34 @@ local function scale( img, rows, cols )
   end
   return newImg
 end
+
 local function rotate( img, deg )
+  local rows, cols = img.height, img.width
+  local rad = deg * (math.pi / 180)
+  local newImg = image.flat(cols*2, rows*2, 0)
+  local newX, newY
+  
+  for r = 0, rows - 2 do
+    for c = 0, cols - 2 do
+      --set the fill to the background color
+      newImg:at(c,r).r =  240
+      newImg:at(c,r).g =  240
+      newImg:at(c,r).b =  240
+    end
+  end
+  
+  for r = 0, rows - 2 do
+    for c = 0, cols -2 do
+      newX = math.cos(rad)*c - math.sin(rad)*r
+      newY = math.sin(rad)*c + math.cos(rad)*r
+      
+      newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, newX, newY)
+    end
+  end
+  
+  return newImg
 end
+
 local function warp( img, x, y )
 end
 
