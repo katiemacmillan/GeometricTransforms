@@ -1,5 +1,11 @@
 local color = require "il.color"
 local function nearestNeighbor( img, x, y )
+  local roundX = math.floor(x+0.5)
+  local roundY = math.floor(y+0.5)
+  local r = img:at(roundX, roundY).r
+  local g = img:at(roundX, roundY).g
+  local b = img:at(roundX, roundY).b
+  return r, g, b
 end
 local function bilinear( img, x, y )
   local x1, x2, y1, y2;

@@ -12,7 +12,7 @@ local function scale( img, rows, cols )
 
   for r = 0, rows - 2 do
     for c = 0, cols - 2 do
-      newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, c/scaleX, r/scaleY)
+      newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.neighbor(img, c/scaleX, r/scaleY)
     end
   end
   return newImg
