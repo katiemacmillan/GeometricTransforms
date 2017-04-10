@@ -12,8 +12,8 @@ local function scale( img, rows, cols )
   local height, width = img.height, img.width
   local newImg = image.flat(cols, rows ,0)
 
-  for r = 0, rows - 2 do
-    for c = 0, cols - 2 do
+  for r = 0, rows - 1 do
+    for c = 0, cols - 1 do
       newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.neighbor(img, r/scaleX, c/scaleY)
     end
   end
