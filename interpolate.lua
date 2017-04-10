@@ -2,6 +2,8 @@ local color = require "il.color"
 local function nearestNeighbor( img, x, y )
   local roundX = math.floor(x+0.5)
   local roundY = math.floor(y+0.5)
+  if roundX >= img.width then roundX = img.width-1 end
+  if roundY >= img.height then roundY = img.height-1 end
   --print(roundX .. "   " .. roundY)
   local r = img:at(roundX, roundY).r
   local g = img:at(roundX, roundY).g

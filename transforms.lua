@@ -3,18 +3,20 @@ local color = require "il.color"
 local image = require "image"
 local interpolate = require "interpolate"
 
-local function scale( img, rows, cols )
+local function scale( img, rows, cols, interp )
   local scaleX, scaleY
   scaleX = rows/img.width
   scaleY = cols/img.height
-  print("Rows: " .. rows .."     Cols:  " .. cols)
-  print("yScale " .. scaleY .."     xScale:  " .. scaleX)
   local height, width = img.height, img.width
   local newImg = image.flat(cols, rows ,0)
 
   for r = 0, rows - 1 do
     for c = 0, cols - 1 do
-      newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.neighbor(img, r/scaleX, c/scaleY)
+      if interp == "nearest neighbor" then
+        newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.neighbor(img, r/scaleX, c/scaleY)
+      else
+        newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.bilinear(img, r/scaleX, c/scaleY)
+      end
     end
   end
   return newImg
