@@ -48,25 +48,25 @@ local function rotate( img, deg )
   local rad = deg * (math.pi / 180)
   local rows, cols = findNewSize(img.height, img.width, deg)  
   local newImg = image.flat(cols, rows, 0)
-  local newX, newY
-  
-  print(rows, cols)
+  local x, y
   
   for r = 0, rows - 1 do
     for c = 0, cols - 1 do
       --set the fill to the background color
-      newImg:at(c,r).r =  240
-      newImg:at(c,r).g =  240
-      newImg:at(c,r).b =  240
+      newImg:at(r,c).r =  240
+      newImg:at(r,c).g =  240
+      newImg:at(r,c).b =  240
     end
   end
   
   for r = 0, rows - 1 do
     for c = 0, cols - 1 do
-      newX = math.abs(math.cos(rad)*c - math.sin(rad)*r)
-      newY = math.abs(math.sin(rad)*c + math.cos(rad)*r)
-      
-      newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, newX, newY)
+      x = math.cos(rad)*r - math.sin(rad)*c
+      y = math.sin(rad)*r + math.cos(rad)*c
+            
+      if x >= 0 and x < img.width and y >= 0 and y < img.height then
+        newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.bilinear(img, x, y)
+      end
     end
   end
   
