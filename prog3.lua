@@ -16,6 +16,7 @@ require "ip"   -- this loads the packed distributable
 local viz = require "visual"
 local il = require "il"
 local transforms = require "transforms"
+local warps = require "warping"
 -- for k,v in pairs( il ) do io.write( k .. "\n" ) end
 
 -- load images listed on command line
@@ -29,6 +30,12 @@ for i, fname in ipairs( imgs ) do loadImage( fname ) end
 local cmarg1 = {name = "color model", type = "string", displaytype = "combo", choices = {"rgb", "yiq", "ihs"}, default = "rgb"}
 local cmarg2 = {name = "color model", type = "string", displaytype = "combo", choices = {"yiq", "yuv", "ihs"}, default = "yiq"}
 local cmarg3 = {name = "interpolation", type = "string", displaytype = "combo", choices = {"nearest neighbor", "bilinear"}, default = "bilinear"}
+local function pointSelector( img, pt )
+  print(pt)
+  --local rgb = img:at( pt.y, pt.x )
+  --io.write( ( "point: (%d,%d) = (%d,%d,%d)\n" ):format( pt.x, pt.y, rgb.r, rgb.g, rgb.b ) );
+  return img
+end
 
 imageMenu("Weiss",
   {
@@ -38,6 +45,9 @@ imageMenu("Weiss",
     {"My Rotate", transforms.rotate, {{name = "deg", type = "number", displaytype = "slider", default = 0, min = -360, max = 360}, cmarg3}},
    {"Rotate", il.rotate,
       {{name = "theta", type = "number", displaytype = "slider", default = 0, min = -360, max = 360}, cmarg3}},
+   {"Wave", warps.waves},
+   {"Quadrilateral Selector", warps.bilinear, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
+    
   }
 )
 
