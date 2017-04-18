@@ -47,10 +47,10 @@ local function bilinear( img, x, y )
   end
   
   local p1, p2, p3, p4
-  p1 = img:at(x1,y1)
-  p2 = img:at(x2,y1)
-  p3 = img:at(x1,y2)
-  p4 = img:at(x2,y2)
+  p1 = img:at(y1,x1)
+  p2 = img:at(y1,x2)
+  p3 = img:at(y2,x1)
+  p4 = img:at(y2,x2)
 
   local r1r, r2r, r1g, r2g, r1b, r2b
   r1r = weightX2*p1.r + weightX1*p2.r
