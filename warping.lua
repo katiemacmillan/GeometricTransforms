@@ -6,12 +6,14 @@ local interpolate = require "interpolate"
 local function bilinear( img, q )
   local width, height = img.width, img.height
   local xMin, xMax, yMin, yMax = q[1].x, q[1].x, q[1].y, q[1].y
+  
   for i =2, 4 do
     if q[i].x < xMin then xMin = q[i].x end
     if q[i].x > xMax then xMax = q[i].x end
     if q[i].y < yMin then yMin = q[i].y end
     if q[i].y > yMax then yMax = q[i].y end
   end
+  
   -- find distance between x' and y' min and max
   local deltaX = xMax-xMin
   local deltaY = yMax-yMin
@@ -23,6 +25,7 @@ local function bilinear( img, q )
   deltaY1 = q[2].y - q[3].y
   deltaY2 = q[4].y - q[3].y
   deltaY3 = q[1].y - q[2].y + q[3].y - q[4].y
+  
   -- create new image based on x' and y' size
   local newImg = image.flat(deltaX, deltaY ,225)
     -- calculate a - f
@@ -39,10 +42,12 @@ local function bilinear( img, q )
     b = (q[3].x - q[2].x)/height
     e = (q[3].y - q[2].y)/height
   end
-    a = (q[2].x - q[1].x + (g * q[2].x))/width
-    c = q[1].x
-    d = (q[2].y - q[1].y + (g * q[2].y))/width
-    f = q[1].y
+  
+  a = (q[2].x - q[1].x + (g * q[2].x))/width
+  c = q[1].x
+  d = (q[2].y - q[1].y + (g * q[2].y))/width
+  f = q[1].y
+  
   -- since z' is 0 
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
@@ -58,6 +63,7 @@ local function bilinear( img, q )
   
   return newImg
 end
+
 local function bilinear2( img, q )
   local width, height = img.width, img.height
   
@@ -75,11 +81,8 @@ local function bilinear2( img, q )
   
   -- create new image based on x' and y' size
   local newImg = image.flat(deltaY, deltaX ,0)
-  
   -- calculate a - f
   local a,b,c,d,e,f
-  
-  
   
   -- since z' is 0 
   for x = 0, deltaX-1 do
@@ -88,16 +91,16 @@ local function bilinear2( img, q )
       --local v = (x*((c*g)-(b*i)) + y*((a*i)-(c*g)) + ((b*g)-(a*h)))
       local u = ((x-c+xMin)/a)-((b*(y-f+yMin))/(e*a))-((1-(b*x))/e)
       local v = (y-(d*x)-f+yMin)/e
+      
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(x,y).r, newImg:at(x,y).g, newImg:at(x,y).b = interpolate.bilinear(img, u, v)        
       end
-      
     end
   end
   
-
   return newImg
 end
+
 function warp()
 end
 
@@ -111,6 +114,7 @@ function waves(img)
   for r = 0, width - 1 do
     for c = 0, height - 1 do
       local x = r-20*math.sin(2*math.pi*c/128)
+      
       if (x >=0 and x < width) then
         newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, x, c)
       end

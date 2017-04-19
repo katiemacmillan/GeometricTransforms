@@ -44,7 +44,7 @@ local function findNewSize(h, w, deg)
   return math.ceil(newH), math.ceil(newW)
 end
 
-local function rotate( img, deg )
+local function rotate( img, deg, interp )
   local rad = deg * (math.pi / 180)
   local rows, cols = findNewSize(img.height, img.width, deg)  
   local newImg = image.flat(cols, rows, 0)
@@ -61,11 +61,16 @@ local function rotate( img, deg )
   
   for r = 0, rows - 1 do
     for c = 0, cols - 1 do
-      x = math.cos(rad)*r - math.sin(rad)*c
-      y = math.sin(rad)*r + math.cos(rad)*c
+      x = math.sin(rad)*r + math.cos(rad)*c
+      y = math.cos(rad)*r - math.sin(rad)*c
             
       if x >= 0 and x < img.width and y >= 0 and y < img.height then
+      if interp == "nearest neighbor" then
+        --does not work properly at all
+        newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.neighbor(img, x, y)
+      else
         newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.bilinear(img, x, y)
+      end
       end
     end
   end

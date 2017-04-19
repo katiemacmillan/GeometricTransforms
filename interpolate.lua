@@ -1,25 +1,32 @@
 local color = require "il.color"
+
 local function nearestNeighbor( img, x, y )
   local roundX = math.floor(x+0.5)
   local roundY = math.floor(y+0.5)
+  
   if roundX >= img.width then roundX = img.width-1 end
   if roundY >= img.height then roundY = img.height-1 end
+  
   --print(roundX .. "   " .. roundY)
   local r = img:at(roundX, roundY).r
   local g = img:at(roundX, roundY).g
   local b = img:at(roundX, roundY).b
+  
   return r, g, b
 end
+
 local function bilinear( img, x, y )
   local x1, x2, y1, y2;
   x1 = math.floor(x)
   x2 = math.ceil(x)
   y1 = math.floor(y)
   y2 = math.ceil(y)
+  
   if (x1 == x and x2 == x) then
     x1 = x - 1
     x2 = x+1
   end
+  
   if (y1 == y and y2 == y) then
     y1 = y - 1
     y2 = y+1
@@ -65,8 +72,10 @@ local function bilinear( img, x, y )
   r = weightY2*r1r + weightY1*r2r
   g = weightY2*r1g + weightY1*r2g
   b = weightY2*r1b + weightY1*r2b
+  
   return r, g, b
 end
+
 local function bicubic( img, x, y )
 end
 
