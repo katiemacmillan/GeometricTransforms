@@ -15,9 +15,9 @@ local function scale( img, rows, cols, interp )
   for r = 0, rows - 1 do
     for c = 0, cols - 1 do
       if interp == "nearest neighbor" then
-        newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.neighbor(img, r/scaleX, c/scaleY)
+        newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.neighbor(img, r/scaleX, c/scaleY)
       else
-        newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.bilinear(img, r/scaleX, c/scaleY)
+        newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, r/scaleX, c/scaleY)
       end
     end
   end
