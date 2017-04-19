@@ -16,25 +16,27 @@ local function bilinear( img, q )
   g = 0
   h = 0
   i = 1
+  
   for r = 0, img.width-1 do
     for c = 0, img.height-1 do
       local x = ((e*i)-(f*h))*r + ((f*g)-(d*i))*c
       local y = ((c*h)-(b*i))*r + ((a*i)-(c*g))*c
+      
       if (math.floor(x) >= 0 or math.floor(y) >= 0) then
         newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.bilinear(img, x, y)        
       end
-      
     end
   end
   
-
   return newImg
 end
 
 function warp()
 end
+
 function swirl()
 end
+
 function waves(img)
   local height, width = img.height, img.width
   local newImg = img:clone()
@@ -45,6 +47,7 @@ function waves(img)
       newImg:at(r,c).r, newImg:at(r,c).g, newImg:at(r,c).b = interpolate.neighbor(img, x, c)
     end
   end
+  
   return newImg
 end
 
