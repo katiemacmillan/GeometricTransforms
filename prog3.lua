@@ -30,6 +30,7 @@ for i, fname in ipairs( imgs ) do loadImage( fname ) end
 local cmarg1 = {name = "color model", type = "string", displaytype = "combo", choices = {"rgb", "yiq", "ihs"}, default = "rgb"}
 local cmarg2 = {name = "color model", type = "string", displaytype = "combo", choices = {"yiq", "yuv", "ihs"}, default = "yiq"}
 local cmarg3 = {name = "interpolation", type = "string", displaytype = "combo", choices = {"nearest neighbor", "bilinear"}, default = "bilinear"}
+
 local function pointSelector( img, pt )
   print(pt)
   --local rgb = img:at( pt.y, pt.x )
@@ -37,13 +38,14 @@ local function pointSelector( img, pt )
   return img
 end
 
-imageMenu("Weiss",
+imageMenu("Geometric Tranforms",
   {
     {"Resize", transforms.scale,
       {{name = "rows", type = "number", displaytype = "spin", default = 1024, min = 1, max = 16384},
        {name = "cols", type = "number", displaytype = "spin", default = 1024, min = 1, max = 16384}, cmarg3}},
-    {"My Rotate", transforms.rotate, {{name = "deg", type = "number", displaytype = "slider", default = 0, min = -360, max = 360}, cmarg3}},
-   {"Rotate", il.rotate,
+    {"Rotate", transforms.rotate,
+      {{name = "deg", type = "number", displaytype = "slider", default = 0, min = -360, max = 360}, cmarg3}},
+    {"Weiss Rotate", il.rotate,
       {{name = "theta", type = "number", displaytype = "slider", default = 0, min = -360, max = 360}, cmarg3}},
    {"Wave", warps.waves},
    {"Perspective Warp", warps.perspective, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
@@ -57,14 +59,13 @@ imageMenu("Weiss",
        {name="a22", type = "number", default = 1, min = -1000, max = 1000},
        {name="a23", type = "number", default = 0, min = -1000, max = 1000},
        }},
-    
   }
 )
 
 -- help menu
 imageMenu("Help",
   {
-    {"Help", viz.imageMessage("Help", "Under the File menu a user can open a new image, save the current image or exit the program.\n\nBy right clicking on the image tab, the user can duplicate or reload the image. The user may also press Ctrl+D to duplicate an image or Crtl+R to reload it.\n\nThere are multiple menus from which to choose. You are able to do some preprocessing with a few point processes. Then edge detectors and other neighborhood processes which have been implemented may be run.\n\nThe user can also add noise to better show the effect of the noise cleaning filters.")},
+    {"Help", viz.imageMessage("Help", "Under the File menu a user can open a new image, save the current image or exit the program.\n\nBy right clicking on the image tab, the user can duplicate or reload the image. The user may also press Ctrl+D to duplicate an image or Crtl+R to reload it.\n\nThere is a Geometric Transforms menu that holds all the functions developed for this demo.")},
     {"About", viz.imageMessage("Lua Geometric Transforms" .. viz.VERSION, "Authors: Forrest Miller and Katie MacMillan\nClass: CSC442 Digital Image Processing\nDate: April 24th, 2017")},
   }
 )

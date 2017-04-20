@@ -40,7 +40,6 @@ local function affineWarp( img, q )
   c = q[1].x
   f = q[1].y
 
-
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
@@ -78,6 +77,7 @@ local function affineWarp( img, q )
   return newImg
 end
 local function affineTransform( img, a, b, c, d, e, f )
+
   local width, height = img.width, img.height
   local px = 0-(width/2)
   local py = 0-(height/2)
@@ -116,7 +116,6 @@ local function affineTransform( img, a, b, c, d, e, f )
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end
-
     end
   end
 
@@ -127,8 +126,10 @@ local function bilinear( img, q )
 end
 function perspective(img, q)
 end
+
 function swirl()
 end
+
 function waves(img)
   local height, width = img.height, img.width
   local newImg = img:clone()
@@ -136,11 +137,13 @@ function waves(img)
   for r = 0, width - 1 do
     for c = 0, height - 1 do
       local x = r-20*math.sin(2*math.pi*c/128)
+      
       if (x >=0 and x < width) then
         newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, x, c)
       end
     end
   end
+  
   return newImg
 end
 
