@@ -46,7 +46,17 @@ imageMenu("Weiss",
    {"Rotate", il.rotate,
       {{name = "theta", type = "number", displaytype = "slider", default = 0, min = -360, max = 360}, cmarg3}},
    {"Wave", warps.waves},
-   {"Quadrilateral Selector", warps.bilinear, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
+   {"Perspective Warp", warps.perspective, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
+   {"Bilinear Warp", warps.bilinear, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
+   {"Affine Warp", warps.affineWarp, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
+   {"Affine Transforms", warps.affineTransform, {
+       {name="a11", type = "number", default = 1, min = -1000, max = 1000},
+       {name="a21", type = "number", default = 0, min = -1000, max = 1000},
+       {name="a31", type = "number", default = 0, min = -1000, max = 1000},
+       {name="a12", type = "number", default = 0, min = -1000, max = 1000},
+       {name="a22", type = "number", default = 1, min = -1000, max = 1000},
+       {name="a23", type = "number", default = 0, min = -1000, max = 1000},
+       }},
     
   }
 )

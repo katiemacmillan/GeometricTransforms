@@ -27,7 +27,9 @@ local function bilinear( img, x, y )
   
   if x1 < 0 then x1 = 0 end
   if y1 < 0 then y1 = 0 end
+  if x1 >= img.width then x1 = img.width - 1 end
   if x2 >= img.width then x2 = img.width - 1 end
+  if y1 >= img.height then y1 = img.height - 1 end
   if y2 >= img.height then y2 = img.height - 1 end
   
   if x1 == x2 then
