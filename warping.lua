@@ -28,29 +28,13 @@ local function getPerspectiveCoefficients(q, width, height)
   a = (q[2].x - q[1].x + g*width*q[2].x)/width
   d = (q[2].y - q[1].y + g*width*q[2].y)/width
 
-  print("a: " .. a)
-  print("b: " .. b)
-  print("c: " .. c)
-  print("d: " .. d)
-  print("e: " .. e)
-  print("f: " .. f)
-  print("g: " .. g)
-  print("h: " .. h)
   return a, b, c, d, e, f, g, h
 end
 
 local function getPerspectiveWarpUX(x, y, a, b, c, d, e, f, g, h)
   local xp, yp, wp, u, v
---  wp = 
- -- xp = wp*x
--- yp = wp*y
---  u = xp*(e - h*f) + yp*(h*c - b) + wp*(b*f - e*c)
---  v = xp*(g*f - d) + yp*(a - g*c) + wp*(d*c - a*f)
   u = (((x-c)*(e-h*y))  + ((h*x - b)*(y-f)))/(((a-g*x)*(e-h*y)) - ((h*x - b)*(g*y - d)))
   v= (y - f + g*u*y - d*u)/(e - h*y)
---  u = ((x-c)*(b - (h*y))+((h*x) - b)*(y - c))
---  u = u /((b - (h*y))*(a - (g*x))-(a - (g*y))*((h*x) - b))
---  v = (y - (a*u) - c + (g*u*y))/(b - (h*y))
   return u, v
 end
 
