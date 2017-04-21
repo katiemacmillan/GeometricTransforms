@@ -3,19 +3,22 @@ local color = require "il.color"
 local image = require "image"
 local interpolate = require "interpolate"
 
-local function affineWarp( img, q )
-  local width, height = img.width, img.height
-
-  -- Find min and max for x' and y' coordinates
+local function getDeltas (q)
   local xMin, xMax, yMin, yMax = q[1].x, q[2].x, q[1].y, q[4].y
   if q[4].x < xMin then xMin = q[4].x end
   if q[3].x > xMax then xMax = q[3].x end
   if q[2].y < yMin then yMin = q[2].y end
   if q[3].y > yMax then yMax = q[3].y end
+  return xMax - xMin, yMax - yMin
+end
+
+local function affineWarp( img, q )
+  local width, height = img.width, img.height
+
+  -- Find min and max for x' and y' coordinates
 
   -- find distance between x' and y' min and max
-  local deltaX = xMax-xMin
-  local deltaY = yMax-yMin
+  local deltaX, deltaY = getDeltas(q)
 
   -- calculate m and b
   local lineM = (q[3].y - q[1].y)/(q[3].x - q[1].x)
