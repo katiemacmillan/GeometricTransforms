@@ -16,18 +16,42 @@ local function translateCoords (x, y, width, height)
 end
 
 local function getPerspectiveCoefficients(q, width, height)
-  local a,b,c,d,e,f,g,h
+  local a, b, c, d, e, f, g, h
 
-  h = (-1/4*width)*(((q[1].x - q[2].x - q[4].x)/q[3].x)+((q[1].y - q[2].y - q[4].y)/q[3].y) - 2)
-  g = (q[3].y - q[1].y + h*height*q[3].y)/height
-  a = (q[2].x - q[1].x + g*width*q[2].x)/width
-  b = (q[4].x - q[1].x + h*height*q[4].x)/height
+  h =  (height*q[2].x*q[1].y-height*q[2].x*q[4].y+height*q[3].x*q[1].y-2*height*q[3].x*q[2].y+2*height*q[3].x*q[3].y-height*q[3].x*q[4].y-q[1].x*q[2].y+q[1].x*q[3].y+q[4].x*q[2].y-q[4].x*q[3].y)/(height*(height*q[2].x*q[3].y+height*q[2].x*q[4].y+height*q[3].x*q[2].y+height*q[3].x*q[4].y-q[4].x*q[2].y+q[4].x*q[3].y))
+  g = (h*height*q[3].x-q[2].x+q[3].x)/(width*(q[3].x+q[2].x))-(h*height*q[4].x-q[1].x+q[4].x)/(height*width*(q[3].x+q[2].x))
   c = q[1].x
-  a = (q[2].y - q[1].y + g*width*q[2].y)/width
-  b = (q[4].y - q[1].y + h*height*q[4].y)/height
-  c = q[1].y
+  f = q[1].y
+  e = (q[4].y - q[1].y + h*height*q[4].y)/height
+  b = (q[4].x - q[1].x + h*height*q[4].x)/height
 
-  return a,b,c,d,e,f,g,h
+  a = (q[2].x - q[1].x + g*width*q[2].x)/width
+  d = (q[2].y - q[1].y + g*width*q[2].y)/width
+
+  print("a: " .. a)
+  print("b: " .. b)
+  print("c: " .. c)
+  print("d: " .. d)
+  print("e: " .. e)
+  print("f: " .. f)
+  print("g: " .. g)
+  print("h: " .. h)
+  return a, b, c, d, e, f, g, h
+end
+
+local function getPerspectiveWarpUX(x, y, a, b, c, d, e, f, g, h)
+  local xp, yp, wp, u, v
+--  wp = 
+ -- xp = wp*x
+-- yp = wp*y
+--  u = xp*(e - h*f) + yp*(h*c - b) + wp*(b*f - e*c)
+--  v = xp*(g*f - d) + yp*(a - g*c) + wp*(d*c - a*f)
+  u = (((x-c)*(e-h*y))  + ((h*x - b)*(y-f)))/(((a-g*x)*(e-h*y)) - ((h*x - b)*(g*y - d)))
+  v= (y - f + g*u*y - d*u)/(e - h*y)
+--  u = ((x-c)*(b - (h*y))+((h*x) - b)*(y - c))
+--  u = u /((b - (h*y))*(a - (g*x))-(a - (g*y))*((h*x) - b))
+--  v = (y - (a*u) - c + (g*u*y))/(b - (h*y))
+  return u, v
 end
 
 local function getAffineCoefficients(q, width, height)
@@ -51,8 +75,8 @@ end
 
 local function getAffineWarpUV(x, y, a, b, c, d, e, f)
   local u, v
-  u = (x*e) - (y*b) + ((b*f) - (c*e))
-  v = (-d*x) +(y*a) + ((c*d) - (f*a))
+  u = (e*x) - (b*b) + ((b*f) - (c*e))
+  v = (-d*x) +(a*y) + ((c*d) - (a*f))
   u = u/(a*e - b*d)
   v = v/(a*e - b*d)
   return u, v
@@ -142,30 +166,23 @@ function perspective(img, q)
   local width, height = img.width, img.height
   local deltaX, deltaY = getDeltas(q)
   local newImg = image.flat(deltaX, deltaY, 0)
-  local a,b,c,d,e,f,g,h = getPerspectiveCoefficients(q, width, height)
+  local a, b, c, d, e, f, g, h = getPerspectiveCoefficients(q, width, height)
 
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
-      -- displace coordinates for resulting image
-      x = x-(deltaX/2)
-      y = y-(deltaY/2)
-
-      -- translate origin to center
-      u = u + (width/2)
-      v = v + (height/2)
-
-      -- translate back in result image
-      x = x+(deltaX/2)
-      y = y+(deltaY/2)
+      x, y = translateCoords(x, y, -deltaX, -deltaY)
+      u,v = getPerspectiveWarpUX(x, y, a, b, c, d, e, f, g, h)
+      --print("(".. u .. ", " .. v .. ")")
+      u, v = translateCoords(u, v, width, height)
+      x, y = translateCoords(x, y, deltaX, deltaY)
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end
-
     end
   end
-
   return newImg
+
 end
 
 function waves(img)
