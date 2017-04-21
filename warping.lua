@@ -12,6 +12,21 @@ local function getDeltas (q)
   return xMax - xMin, yMax - yMin
 end
 
+local function getPerspectiveCoefficients(q, width, height)
+  local a,b,c,d,e,f,g,h
+  
+  h = (-1/4*width)*(((q[1].x - q[2].x - q[4].x)/q[3].x)+((q[1].y - q[2].y - q[4].y)/q[3].y) - 2)
+  g = (q[3].y - q[1].y + h*height*q[3].y)/height
+  a = (q[2].x - q[1].x + g*width*q[2].x)/width
+  b = (q[4].x - q[1].x + h*height*q[4].x)/height
+  c = q[1].x
+  a = (q[2].y - q[1].y + g*width*q[2].y)/width
+  b = (q[4].y - q[1].y + h*height*q[4].y)/height
+  c = q[1].y
+
+  return a,b,c,d,e,f,g,h
+end
+
 
 local function affineWarp( img, q )
   local width, height = img.width, img.height
@@ -129,16 +144,8 @@ function perspective(img, q)
   local width, height = img.width, img.height
   local deltaX, deltaY = getDeltas(q)
   local newImg = image.flat(deltaX, deltaY, 0)
-  local a,b,c,d,e,f,g,h
+  local a,b,c,d,e,f,g,h = getPerspectiveCoefficients(q, width, height)
   
-  h = (-1/4*width)*(((q[1].x - q[2].x - q[4].x)/q[3].x)+((q[1].y - q[2].y - q[4].y)/q[3].y) - 2)
-  g = (q[3].y - q[1].y + h*height*q[3].y)/height
-  a = (q[2].x - q[1].x + g*width*q[2].x)/width
-  b = (q[4].x - q[1].x + h*height*q[4].x)/height
-  c = q[1].x
-  a = (q[2].y - q[1].y + g*width*q[2].y)/width
-  b = (q[4].y - q[1].y + h*height*q[4].y)/height
-  c = q[1].y
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
