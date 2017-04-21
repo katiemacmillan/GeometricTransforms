@@ -12,10 +12,9 @@ local function getDeltas (q)
   return xMax - xMin, yMax - yMin
 end
 
+
 local function affineWarp( img, q )
   local width, height = img.width, img.height
-
-  -- Find min and max for x' and y' coordinates
 
   -- find distance between x' and y' min and max
   local deltaX, deltaY = getDeltas(q)
@@ -128,7 +127,10 @@ end
 
 function perspective(img, q)
   local width, height = img.width, img.height
+  local deltaX, deltaY = getDeltas(q)
+  local newImg = image.flat(deltaX, deltaY, 0)
   local a,b,c,d,e,f,g,h
+  
   h = (-1/4*width)*(((q[1].x - q[2].x - q[4].x)/q[3].x)+((q[1].y - q[2].y - q[4].y)/q[3].y) - 2)
   g = (q[3].y - q[1].y + h*height*q[3].y)/height
   a = (q[2].x - q[1].x + g*width*q[2].x)/width
@@ -137,7 +139,28 @@ function perspective(img, q)
   a = (q[2].y - q[1].y + g*width*q[2].y)/width
   b = (q[4].y - q[1].y + h*height*q[4].y)/height
   c = q[1].y
-  return img
+  for x = 0, deltaX-1 do
+    for y = 0, deltaY-1 do
+      local u,v
+      -- displace coordinates for resulting image
+      x = x-(deltaX/2)
+      y = y-(deltaY/2)
+
+      -- translate origin to center
+      u = u + (width/2)
+      v = v + (height/2)
+
+      -- translate back in result image
+      x = x+(deltaX/2)
+      y = y+(deltaY/2)
+      if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
+        newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
+      end
+
+    end
+  end
+
+  return newImg
 end
 
 function waves(img)
