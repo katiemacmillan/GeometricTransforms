@@ -102,7 +102,7 @@ local function affineTransform( img, a, b, c, d, e, f )
       -- inverse transform matrix multiply
       u = (x*e) - (y*b) + ((b*f) - (c*e))
       v = (-d*x) +(y*a) + ((c*d) - (f*a))
-      
+
       -- divide by determinant
       u = u/(a*e - b*d)
       v = v/(a*e - b*d)
@@ -122,33 +122,31 @@ local function affineTransform( img, a, b, c, d, e, f )
 
   return newImg
 end
-local function bilinear( img, q )
-end
-function perspective(img, q)
-end
 
-function swirl()
+function perspective(img, q)
 end
 
 function waves(img)
   local height, width = img.height, img.width
   local newImg = img:clone()
 
-  for r = 0, width - 1 do
-    for c = 0, height - 1 do
-      local x = r-20*math.sin(2*math.pi*c/128)
-      
-      if (x >=0 and x < width) then
-        newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, x, c)
+  for x = 0, width - 1 do
+    for y = 0, height - 1 do
+      local u = x-20*math.sin(2*math.pi*y/128)
+
+      if (math.floor(u) >=0 and math.ceil(u) < width) then
+        newImg:at(y,x).rgb = {interpolate.bilinear(img, u, y)}
+      else
+        newImg:at(y,x).rgb = {240, 240, 240}
       end
+
     end
   end
-  
+
   return newImg
 end
 
 return {
-  bilinear = bilinear,
   affineTransform = affineTransform,
   perspective = perspective,
   affineWarp = affineWarp,

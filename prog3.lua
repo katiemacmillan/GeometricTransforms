@@ -49,7 +49,6 @@ imageMenu("Geometric Tranforms",
       {{name = "theta", type = "number", displaytype = "slider", default = 0, min = -360, max = 360}, cmarg3}},
    {"Wave", warps.waves},
    {"Perspective Warp", warps.perspective, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
-   {"Bilinear Warp", warps.bilinear, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
    {"Affine Warp", warps.affineWarp, {{name="quad", type = "quad", default = {{0, 0}, {100, 0}, {100, 100}, {0, 100}}}}},
    {"Affine Transforms", warps.affineTransform, {
        {name="a11", type = "number", default = 1, min = -1000, max = 1000},
