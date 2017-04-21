@@ -14,7 +14,7 @@ end
 
 local function getPerspectiveCoefficients(q, width, height)
   local a,b,c,d,e,f,g,h
-  
+
   h = (-1/4*width)*(((q[1].x - q[2].x - q[4].x)/q[3].x)+((q[1].y - q[2].y - q[4].y)/q[3].y) - 2)
   g = (q[3].y - q[1].y + h*height*q[3].y)/height
   a = (q[2].x - q[1].x + g*width*q[2].x)/width
@@ -27,21 +27,8 @@ local function getPerspectiveCoefficients(q, width, height)
   return a,b,c,d,e,f,g,h
 end
 
-
-local function affineWarp( img, q )
-  local width, height = img.width, img.height
-
-  -- find distance between x' and y' min and max
-  local deltaX, deltaY = getDeltas(q)
-
-  -- calculate m and b
-  local lineM = (q[3].y - q[1].y)/(q[3].x - q[1].x)
-  local lineB =  q[3].y - (q[3].x*lineM)
-
-  -- generate new image
-  local newImg = image.flat(deltaX, deltaY, 0)
-
-  local a,b,c,d,e,f
+local function getAffineCoefficients(q, width, height)
+  local a1,b1,d1,e1,a2,b2,d2,e2,c,f
   -- coefficients for upper triangle
   a1 = (q[2].x-q[1].x)/width
   b1 = (q[3].x-q[2].x)/height
@@ -56,6 +43,22 @@ local function affineWarp( img, q )
 
   c = q[1].x
   f = q[1].y
+  return a1,b1,d1,e1,a2,b2,d2,e2,c,f
+end
+
+local function affineWarp( img, q )
+  local width, height = img.width, img.height
+  -- find distance between x' and y' min and max
+  local deltaX, deltaY = getDeltas(q)
+
+  -- calculate m and b
+  local lineM = (q[3].y - q[1].y)/(q[3].x - q[1].x)
+  local lineB =  q[3].y - (q[3].x*lineM)
+
+  -- generate new image
+  local newImg = image.flat(deltaX, deltaY, 0)
+
+  local a1,b1,d1,e1,a2,b2,d2,e2,c,f = getAffineCoefficients(q, width, height)
 
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
@@ -63,7 +66,6 @@ local function affineWarp( img, q )
       -- displace coordinates for resulting image
       x = x-(deltaX/2)
       y = y-(deltaY/2)
-
       -- check for upper or lower triangle and apply coefficients
       if ((lineM * x)+lineB >= y) then
         u = (x*e1) - (y*b1) + ((b1*f) - (c*e1))
@@ -71,7 +73,6 @@ local function affineWarp( img, q )
         u = u/(a1*e1 - b1*d1)
         v = v/(a1*e1 - b1*d1)
       else
-
         u = (x*e2) - (y*b2) + ((b2*f) - (c*e2))
         v = (-d2*x) +(y*a2) + ((c*d2) - (f*a2))
         u = u/(a2*e2 - b2*d2)
@@ -80,7 +81,6 @@ local function affineWarp( img, q )
       -- translate origin to center
       u = u + (width/2)
       v = v + (height/2)
-
       -- translate back in result image
       x = x+(deltaX/2)
       y = y+(deltaY/2)
@@ -145,7 +145,7 @@ function perspective(img, q)
   local deltaX, deltaY = getDeltas(q)
   local newImg = image.flat(deltaX, deltaY, 0)
   local a,b,c,d,e,f,g,h = getPerspectiveCoefficients(q, width, height)
-  
+
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
