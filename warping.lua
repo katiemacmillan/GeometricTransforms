@@ -11,6 +11,9 @@ local function getDeltas (q)
   if q[3].y > yMax then yMax = q[3].y end
   return xMax - xMin, yMax - yMin
 end
+local function translateCoords (x, y, width, height)
+  return x+(width/2), y+(height/2)
+end
 
 local function getPerspectiveCoefficients(q, width, height)
   local a,b,c,d,e,f,g,h
@@ -70,8 +73,7 @@ local function affineWarp( img, q )
     for y = 0, deltaY-1 do
       local u,v
       -- displace coordinates for resulting image
-      x = x-(deltaX/2)
-      y = y-(deltaY/2)
+      x, y = translateCoords(x, y, -deltaX, -deltaY)
       -- check for upper or lower triangle and apply coefficients
       if ((lineM * x)+lineB >= y) then
         u,v = getAffineWarpUV(x, y, a1, b1, c, d1, e1, f)
@@ -79,11 +81,9 @@ local function affineWarp( img, q )
         u,v = getAffineWarpUV(x, y, a2, b2, c, d2, e2, f)
       end
       -- translate origin to center
-      u = u + (width/2)
-      v = v + (height/2)
+      u, v = translateCoords(u, v, width, height)
       -- translate back in result image
-      x = x+(deltaX/2)
-      y = y+(deltaY/2)
+      x, y = translateCoords(x, y, deltaX, deltaY)
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end
