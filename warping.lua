@@ -46,18 +46,24 @@ local function getAffineCoefficients(q, width, height)
   return a1,b1,d1,e1,a2,b2,d2,e2,c,f
 end
 
+local function getAffineWarpUV(x, y, a, b, c, d, e, f)
+  local u, v
+  u = (x*e) - (y*b) + ((b*f) - (c*e))
+  v = (-d*x) +(y*a) + ((c*d) - (f*a))
+  u = u/(a*e - b*d)
+  v = v/(a*e - b*d)
+  return u, v
+end
+
 local function affineWarp( img, q )
   local width, height = img.width, img.height
   -- find distance between x' and y' min and max
   local deltaX, deltaY = getDeltas(q)
-
+  -- generate new image
+  local newImg = image.flat(deltaX, deltaY, 0)
   -- calculate m and b
   local lineM = (q[3].y - q[1].y)/(q[3].x - q[1].x)
   local lineB =  q[3].y - (q[3].x*lineM)
-
-  -- generate new image
-  local newImg = image.flat(deltaX, deltaY, 0)
-
   local a1,b1,d1,e1,a2,b2,d2,e2,c,f = getAffineCoefficients(q, width, height)
 
   for x = 0, deltaX-1 do
@@ -68,15 +74,9 @@ local function affineWarp( img, q )
       y = y-(deltaY/2)
       -- check for upper or lower triangle and apply coefficients
       if ((lineM * x)+lineB >= y) then
-        u = (x*e1) - (y*b1) + ((b1*f) - (c*e1))
-        v = (-d1*x) +(y*a1) + ((c*d1) - (f*a1))
-        u = u/(a1*e1 - b1*d1)
-        v = v/(a1*e1 - b1*d1)
+        u,v = getAffineWarpUV(x, y, a1, b1, c, d1, e1, f)
       else
-        u = (x*e2) - (y*b2) + ((b2*f) - (c*e2))
-        v = (-d2*x) +(y*a2) + ((c*d2) - (f*a2))
-        u = u/(a2*e2 - b2*d2)
-        v = v/(a2*e2 - b2*d2)
+        u,v = getAffineWarpUV(x, y, a2, b2, c, d2, e2, f)
       end
       -- translate origin to center
       u = u + (width/2)
@@ -87,10 +87,8 @@ local function affineWarp( img, q )
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end
-
     end
   end
-
   return newImg
 end
 local function affineTransform( img, a, b, c, d, e, f )
