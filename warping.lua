@@ -96,9 +96,18 @@ end
   
   Author: Katie MacMillan
   
-  Description: 
+  Description: getPerspectiveWarp uses **** to calculate the new u and v coordinates.
   
-  Params: 
+  Params: x - 
+          y - 
+          a - 
+          b - 
+          c - 
+          d - 
+          e - 
+          f - 
+          g - 
+          h - 
   
   Returns: u and v
 --]]
@@ -151,11 +160,18 @@ end
   
   Author: Katie MacMillan
   
-  Description: 
+  Description: getAffineWarp calculates the new u and v based on ****.
   
-  Params: q - 
+  Params: x - 
+          y - 
+          a - 
+          b - 
+          c - 
+          d - 
+          e - 
+          f - 
   
-  Returns: 
+  Returns: new u and v
 --]]
 local function getAffineWarpUV(x, y, a, b, c, d, e, f)
   local u, v
@@ -174,12 +190,12 @@ end
   
   Author: Katie MacMillan
   
-  Description: 
+  Description: affineWarp ****
   
   Params: img - image to warp
           q   - array of points
   
-  Returns: 
+  Returns: the affine warped image
 --]]
 local function affineWarp( img, q )
   local width, height = img.width, img.height
@@ -229,11 +245,18 @@ end
   
   Author: Katie MacMillan
   
-  Description: 
+  Description: affineTransform transforms a given image based on the values
+  provided by the user. These values control the scale, ****
   
-  Params: q - 
+  Params: img - initial image
+          a   - 
+          b   - 
+          c   - 
+          d   - 
+          e   - 
+          f   - 
   
-  Returns: 
+  Returns: new image
 --]]
 local function affineTransform( img, a, b, c, d, e, f )
 
@@ -290,10 +313,10 @@ end
   
   Author: Katie MacMillan
   
-  Description: 
+  Description: perspective ****
   
-  Params: img - 
-          q   - 
+  Params: img - the initial image
+          q   - array of points user selected
   
   Returns: 
 --]]
@@ -332,11 +355,11 @@ end
   
   Author: Katie MacMillan
   
-  Description: 
+  Description: waves uses reflection and bilinear interpolation to create a wave effect.
   
-  Params: img - 
+  Params: img - initial image
   
-  Returns: 
+  Returns: new waved image
 --]]
 function waves(img)
   local height, width = img.height, img.width
