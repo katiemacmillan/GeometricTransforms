@@ -33,6 +33,8 @@ local function getPerspectiveCoefficients(q, width, height)
   local a, b, c, d, e, f, g, h
 
   h =  (height*q[2].x*q[1].y-height*q[2].x*q[4].y+height*q[3].x*q[1].y-2*height*q[3].x*q[2].y+2*height*q[3].x*q[3].y-height*q[3].x*q[4].y-q[1].x*q[2].y+q[1].x*q[3].y+q[4].x*q[2].y-q[4].x*q[3].y)/(height*(height*q[2].x*q[3].y+height*q[2].x*q[4].y+height*q[3].x*q[2].y+height*q[3].x*q[4].y-q[4].x*q[2].y+q[4].x*q[3].y))
+  
+  
   g = (h*height*q[3].x-q[2].x+q[3].x)/(width*(q[3].x+q[2].x))-(h*height*q[4].x-q[1].x+q[4].x)/(height*width*(q[3].x+q[2].x))
   c = q[1].x
   f = q[1].y
