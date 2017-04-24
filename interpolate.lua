@@ -1,3 +1,9 @@
+--[[
+  * * * * interpolate.lua * * * *
+  A file that seperates the bilinear and nearest neighbor interpolations from
+  the rest of the program.
+--]]
+
 local color = require "il.color"
 
 local function nearestNeighbor( img, x, y )

@@ -1,3 +1,8 @@
+--[[
+  * * * * warping.lua * * * *
+  The file that contains all of the warping transformations and a wave transformation.
+--]]
+
 require "ip"
 local color = require "il.color"
 local image = require "image"
