@@ -2,17 +2,31 @@ require "ip"
 local color = require "il.color"
 local image = require "image"
 local interpolate = require "interpolate"
-
-local function getDeltas (q)
-  local xMin, xMax, yMin, yMax = q[1].x, q[2].x, q[1].y, q[4].y
-  if q[4].x < xMin then xMin = q[4].x end
-  if q[3].x > xMax then xMax = q[3].x end
-  if q[2].y < yMin then yMin = q[2].y end
-  if q[3].y > yMax then yMax = q[3].y end
+local helpers = require "helpers"
+local function getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
+  local u = {0, width, width, 0}
+  local v = {0, 0, height, height}
+  local x = {}
+  local y = {}
+  
+  for i = 1, 4 do
+    x[i] = (a*u[i] + b*v[i] + c)/(g*u[i] + h*v[i] + 1)
+    y[i] = (d*u[i] + e*v[i] + f)/(g*u[i] + h*v[i] + 1)
+  end
+print (x[1]) 
+print (x[2]) 
+print (x[3]) 
+print (x[4]) 
+ local xMin, xMax = x[1], x[1]
+  local yMin, yMax = y[1], y[1]
+  for i = 2, 4 do
+    if x[i] < xMin then xMin = x[i] end
+    if x[i] > xMax then xMax = x[i] end
+    if y[i] < yMin then yMin = y[i] end
+    if y[i] > yMax then yMax = y[i] end
+  end
+  
   return xMax - xMin, yMax - yMin
-end
-local function translateCoords (x, y, width, height)
-  return x+(width/2), y+(height/2)
 end
 
 local function getPerspectiveCoefficients(q, width, height)
@@ -69,7 +83,7 @@ end
 local function affineWarp( img, q )
   local width, height = img.width, img.height
   -- find distance between x' and y' min and max
-  local deltaX, deltaY = getDeltas(q)
+  local deltaX, deltaY = helpers.getDeltas(q)
   -- generate new image
   local newImg = image.flat(deltaX, deltaY, 0)
   -- calculate m and b
@@ -81,7 +95,7 @@ local function affineWarp( img, q )
     for y = 0, deltaY-1 do
       local u,v
       -- displace coordinates for resulting image
-      x, y = translateCoords(x, y, -deltaX, -deltaY)
+      x, y = helpers.translateCoords(x, y, -deltaX, -deltaY)
       -- check for upper or lower triangle and apply coefficients
       if ((lineM * x)+lineB >= y) then
         u,v = getAffineWarpUV(x, y, a1, b1, c, d1, e1, f)
@@ -89,9 +103,9 @@ local function affineWarp( img, q )
         u,v = getAffineWarpUV(x, y, a2, b2, c, d2, e2, f)
       end
       -- translate origin to center
-      u, v = translateCoords(u, v, width, height)
+      u, v = helpers.translateCoords(u, v, width, height)
       -- translate back in result image
-      x, y = translateCoords(x, y, deltaX, deltaY)
+      x, y = helpers.translateCoords(x, y, deltaX, deltaY)
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end
@@ -148,18 +162,20 @@ end
 
 function perspective(img, q)
   local width, height = img.width, img.height
-  local deltaX, deltaY = getDeltas(q)
-  local newImg = image.flat(deltaX, deltaY, 0)
   local a, b, c, d, e, f, g, h = getPerspectiveCoefficients(q, width, height)
+  local dX, dY = getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
+  local deltaX,deltaY = helpers.getDeltas(q, width, height)
+  print (dX .. ", " .. dY)
+  print (c)
+  local newImg = image.flat(deltaX, deltaY, 0)
 
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
-      x, y = translateCoords(x, y, -deltaX, -deltaY)
+--      x, y = helpers.translateCoords(x, y, -deltaX, -deltaY)
       u,v = getPerspectiveWarpUX(x, y, a, b, c, d, e, f, g, h)
-      --print("(".. u .. ", " .. v .. ")")
-      u, v = translateCoords(u, v, width, height)
-      x, y = translateCoords(x, y, deltaX, deltaY)
+--      u, v = helpers.translateCoords(u, v, width, height)
+--      x, y = helpers.translateCoords(x, y, deltaX, deltaY)
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end

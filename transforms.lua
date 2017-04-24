@@ -2,6 +2,7 @@ require "ip"
 local color = require "il.color"
 local image = require "image"
 local interpolate = require "interpolate"
+local helpers = require "helpers"
 
 local function scale( img, rows, cols, interp )
   local scaleX, scaleY
@@ -12,12 +13,12 @@ local function scale( img, rows, cols, interp )
   local height, width = img.height, img.width
   local newImg = image.flat(cols, rows ,0)
 
-  for r = 0, rows - 1 do
-    for c = 0, cols - 1 do
+  for x = 0, rows - 1 do
+    for y = 0, cols - 1 do
       if interp == "nearest neighbor" then
-        newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.neighbor(img, r/scaleX, c/scaleY)
+        newImg:at(y,x).rgb = {interpolate.neighbor(img, x/scaleX, y/scaleY)}
       else
-        newImg:at(c,r).r, newImg:at(c,r).g, newImg:at(c,r).b = interpolate.bilinear(img, r/scaleX, c/scaleY)
+        newImg:at(cy,x).rgb = {interpolate.bilinear(img, x/scaleX, y/scaleY)}
       end
     end
   end
