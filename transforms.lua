@@ -11,8 +11,9 @@ local function scale( img, rows, cols, interp )
   scaleY = cols/img.height
 
   local height, width = img.height, img.width
-  local newImg = image.flat(cols, rows ,0)
+  local newImg = image.flat(rows, cols ,0)
 
+  print (newImg.width .. ", " .. newImg.height)
   for x = 0, rows - 1 do
     for y = 0, cols - 1 do
       if interp == "nearest neighbor" then
