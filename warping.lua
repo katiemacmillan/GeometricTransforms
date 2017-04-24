@@ -2,12 +2,33 @@
   * * * * warping.lua * * * *
   The file that contains all of the warping transformations and a wave transformation.
 --]]
-
 require "ip"
 local color = require "il.color"
 local image = require "image"
 local interpolate = require "interpolate"
 local helpers = require "helpers"
+
+--[[
+  Function Name: getPerspectiveDeltas
+  
+  Author: Katie MacMillan
+  
+  Description: getPerspectiveDeltas uses **** to calculate the min x and y values and the delta x and y.
+  
+  Params: q - ****
+          a - ****
+          b - ****
+          c - ****
+          d - ****
+          e - ****
+          f - ****
+          g - ****
+          h - ****
+          width - ****
+          height - ****
+  
+  Returns: delta x, delta y, x min and y min
+--]]
 local function getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
   local u = {width/-2, width/2, width/2, width/-2}
   local v = {height/-2, height/-2, height/2, height/2}
@@ -20,12 +41,14 @@ local function getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
     y[i] = (d*u[i] + e*v[i] + f)/(g*u[i] + h*v[i] + 1)
 --    y[i] = y[i] + height/2
   end
-print ("P1: (" .. x[1] .. "," .. y[1] .. ")") 
-print ("P2: (" .. x[2] .. "," .. y[2] .. ")") 
-print ("P3: (" .. x[3] .. "," .. y[3] .. ")") 
-print ("P4: (" .. x[4] .. "," .. y[4] .. ")") 
- local xMin, xMax = x[1], x[1]
+
+  print ("P1: (" .. x[1] .. "," .. y[1] .. ")") 
+  print ("P2: (" .. x[2] .. "," .. y[2] .. ")") 
+  print ("P3: (" .. x[3] .. "," .. y[3] .. ")") 
+  print ("P4: (" .. x[4] .. "," .. y[4] .. ")") 
+  local xMin, xMax = x[1], x[1]
   local yMin, yMax = y[1], y[1]
+  
   for i = 2, 4 do
     if x[i] < xMin then xMin = x[i] end
     if x[i] > xMax then xMax = x[i] end
@@ -38,6 +61,19 @@ print ("P4: (" .. x[4] .. "," .. y[4] .. ")")
   return xMax - xMin, yMax - yMin, xMin, yMin
 end
 
+--[[
+  Function Name: getPerspectiveCoefficients
+  
+  Author: Katie MacMillan
+  
+  Description: getPerspectiveCoefficients uses an array of points and the image height and width to calculate ****
+  
+  Params: q - array of points
+          width - width of image
+          height - height of image
+  
+  Returns: a, b, c, d, e, f, g and h
+--]]
 local function getPerspectiveCoefficients(q, width, height)
   local a, b, c, d, e, f, g, h
 
@@ -49,22 +85,49 @@ local function getPerspectiveCoefficients(q, width, height)
   f = q[1].y
   e = (q[4].y - q[1].y + h*height*q[4].y)/height
   b = (q[4].x - q[1].x + h*height*q[4].x)/height
-
   a = (q[2].x - q[1].x + g*width*q[2].x)/width
   d = (q[2].y - q[1].y + g*width*q[2].y)/width
 
   return a, b, c, d, e, f, g, h
 end
 
+--[[
+  Function Name: getPerspectiveWarp
+  
+  Author: Katie MacMillan
+  
+  Description: 
+  
+  Params: 
+  
+  Returns: u and v
+--]]
 local function getPerspectiveWarpUX(x, y, a, b, c, d, e, f, g, h)
   local xp, yp, wp, u, v
+  
   u = (((x-c)*(e-h*y))  + ((h*x - b)*(y-f)))/(((a-g*x)*(e-h*y)) - ((h*x - b)*(g*y - d)))
   v= (y - f + g*u*y - d*u)/(e - h*y)
+  
   return u, v
 end
 
+--[[
+  Function Name: getAffineCoefficients
+  
+  Author: Katie MacMillan
+  
+  Description: getAffineCoefficients uses an array of points and the image
+  height and width to calculate the coefficients for the affine warp.
+  
+  Params: q - array of points
+          width - width of image
+          height - height of image
+  
+  Returns: a1, b1, d1, e1, a2, b2, d2, e2, c and f
+--]]
 local function getAffineCoefficients(q, width, height)
   local a1,b1,d1,e1,a2,b2,d2,e2,c,f
+  
   -- coefficients for upper triangle
   a1 = (q[2].x-q[1].x)/width
   b1 = (q[3].x-q[2].x)/height
@@ -79,24 +142,54 @@ local function getAffineCoefficients(q, width, height)
 
   c = q[1].x
   f = q[1].y
+  
   return a1,b1,d1,e1,a2,b2,d2,e2,c,f
 end
 
+--[[
+  Function Name: getAffineWarp
+  
+  Author: Katie MacMillan
+  
+  Description: 
+  
+  Params: q - 
+  
+  Returns: 
+--]]
 local function getAffineWarpUV(x, y, a, b, c, d, e, f)
   local u, v
+  
   u = (e*x) - (b*b) + ((b*f) - (c*e))
   v = (-d*x) +(a*y) + ((c*d) - (a*f))
+  
   u = u/(a*e - b*d)
   v = v/(a*e - b*d)
+  
   return u, v
 end
 
+--[[
+  Function Name: affineWarp
+  
+  Author: Katie MacMillan
+  
+  Description: 
+  
+  Params: img - image to warp
+          q   - array of points
+  
+  Returns: 
+--]]
 local function affineWarp( img, q )
   local width, height = img.width, img.height
+  
   -- find distance between x' and y' min and max
   local deltaX, deltaY = helpers.getDeltas(q)
+  
   -- generate new image
   local newImg = image.flat(deltaX, deltaY, 240)
+  
   -- calculate m and b
   local lineM = (q[3].y - q[1].y)/(q[3].x - q[1].x)
   local lineB =  q[3].y - (q[3].x*lineM)
@@ -105,25 +198,43 @@ local function affineWarp( img, q )
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
+      
       -- displace coordinates for resulting image
       x, y = helpers.translateCoords(x, y, -deltaX, -deltaY)
+      
       -- check for upper or lower triangle and apply coefficients
       if ((lineM * x)+lineB >= y) then
         u,v = getAffineWarpUV(x, y, a1, b1, c, d1, e1, f)
       else
         u,v = getAffineWarpUV(x, y, a2, b2, c, d2, e2, f)
       end
+      
       -- translate origin to center
       u, v = helpers.translateCoords(u, v, width, height)
+      
       -- translate back in result image
       x, y = helpers.translateCoords(x, y, deltaX, deltaY)
+      
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end
     end
   end
+  
   return newImg
 end
+
+--[[
+  Function Name: affineTransform
+  
+  Author: Katie MacMillan
+  
+  Description: 
+  
+  Params: q - 
+  
+  Returns: 
+--]]
 local function affineTransform( img, a, b, c, d, e, f )
 
   local width, height = img.width, img.height
@@ -132,6 +243,7 @@ local function affineTransform( img, a, b, c, d, e, f )
 
   local pu = (0/e) - (0*b) + ((b*f) - (c/e))
   local pv = (-d*0) +(0/a) + ((c*d) - (f/a))
+  
   pu = pu + (width/2)
   pv = pv + (height/2)
 
@@ -144,6 +256,7 @@ local function affineTransform( img, a, b, c, d, e, f )
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
+      
       x = x-(deltaX/2)
       y = y-(deltaY/2)
 
@@ -154,6 +267,7 @@ local function affineTransform( img, a, b, c, d, e, f )
       -- divide by determinant
       u = u/(a*e - b*d)
       v = v/(a*e - b*d)
+      
       -- center origin
       u = u + (width/2)
       v = v + (height/2)
@@ -161,16 +275,28 @@ local function affineTransform( img, a, b, c, d, e, f )
       -- translate back in result image
       x = x+(deltaX/2)
       y = y+(deltaY/2)
+      
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end
     end
   end
 
-
   return newImg
 end
 
+--[[
+  Function Name: perspective
+  
+  Author: Katie MacMillan
+  
+  Description: 
+  
+  Params: img - 
+          q   - 
+  
+  Returns: 
+--]]
 function perspective(img, q)
   local width, height = img.width, img.height
   local a, b, c, d, e, f, g, h = getPerspectiveCoefficients(q, width, height)
@@ -186,19 +312,32 @@ function perspective(img, q)
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
+      
       x, y = helpers.translateCoords(x, y, -deltaX, -deltaY)
       u,v = getPerspectiveWarpUX(x, y, a, b, c, d, e, f, g, h)
       u, v = helpers.translateCoords(u, v, width+xMin, height+yMin)
       x, y = helpers.translateCoords(x, y, deltaX, deltaY)
+      
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
       end
     end
   end
+  
   return newImg
-
 end
 
+--[[
+  Function Name: waves
+  
+  Author: Katie MacMillan
+  
+  Description: 
+  
+  Params: img - 
+  
+  Returns: 
+--]]
 function waves(img)
   local height, width = img.height, img.width
   local newImg = img:clone()
@@ -212,7 +351,6 @@ function waves(img)
       else
         newImg:at(y,x).rgb = {240, 240, 240}
       end
-
     end
   end
 

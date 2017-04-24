@@ -8,7 +8,6 @@ Authors: Katie MacMillan and Forrest Miller
 Class: CSC442/542 Digital Image Processing
 Date: 4/24/2017
 --]]
-
 -- LuaIP image processing routines
 require "ip"   -- this loads the packed distributable
 local viz = require "visual"

@@ -3,9 +3,22 @@
   A file that seperates the bilinear and nearest neighbor interpolations from
   the rest of the program.
 --]]
-
 local color = require "il.color"
 
+--[[
+  Function Name: nearestNeighbor
+  
+  Author: Katie MacMillan
+  
+  Description: nearest neighbor performs the nearest neighbor interpolation to
+  determine the r, g and b values for the new point.
+  
+  Params: img - the original image
+          x   - the x value of the image we need the value from
+          y   - the y value of the image we need the value from
+  
+  Returns: the r, g, and b values for the new point
+--]]
 local function nearestNeighbor( img, x, y )
   local roundX = math.floor(x+0.5)
   local roundY = math.floor(y+0.5)
@@ -21,6 +34,20 @@ local function nearestNeighbor( img, x, y )
   return r, g, b
 end
 
+--[[
+  Function Name: bilinear
+  
+  Author: Katie MacMillan
+  
+  Description: bilinear performs the bilinear interpolation to determine the r,
+  g, and b values for the new point
+  
+  Params: img - the original image
+          x   - the x value of the image we need the value from
+          y   - the y value of the image we need the value from
+  
+  Returns: the r, g, and b values for the new point
+--]]
 local function bilinear( img, x, y )
   local x1, x2, y1, y2;
   x1 = math.floor(x)
@@ -84,11 +111,7 @@ local function bilinear( img, x, y )
   return r, g, b
 end
 
-local function bicubic( img, x, y )
-end
-
 return {
   neighbor = nearestNeighbor,
   bilinear = bilinear,
-  bicubic = bicubic,
 }

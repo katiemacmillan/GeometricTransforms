@@ -2,7 +2,6 @@
   * * * * transforms.lua * * * *
   The class that holds the main transform functions: scale and rotate.
 --]]
-
 require "ip"
 local color = require "il.color"
 local image = require "image"
