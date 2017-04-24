@@ -8,9 +8,9 @@ local function nearestNeighbor( img, x, y )
   if roundY >= img.height then roundY = img.height-1 end
   
   --print(roundX .. "   " .. roundY)
-  local r = img:at(roundX, roundY).r
-  local g = img:at(roundX, roundY).g
-  local b = img:at(roundX, roundY).b
+  local r = img:at(roundY, roundX).r
+  local g = img:at(roundY, roundX).g
+  local b = img:at(roundY, roundX).b
   
   return r, g, b
 end
