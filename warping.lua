@@ -335,7 +335,7 @@ function perspective(img, q)
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
-      u,v = getPerspectiveWarpUX(x, y, a, b, c, d, e, f, g, h)
+      u,v = getPerspectiveWarpUV(x, y, a, b, c, d, e, f, g, h)
       
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
