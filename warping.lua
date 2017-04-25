@@ -157,11 +157,13 @@ end
 local function getAffineWarpUV(x, y, a, b, c, d, e, f)
   local u, v
   
-  u = (e*x) - (b*b) + ((b*f) - (c*e))
-  v = (-d*x) +(a*y) + ((c*d) - (a*f))
+  u = (x*e - c*e - b*y + b*f)/(e*a - b*d)
+  v = (y - f - d*u)/e
+  --u = (e*x) - (b*b) + ((b*f) - (c*e))
+  --v = (-d*x) +(a*y) + ((c*d) - (a*f))
   
-  u = u/(a*e - b*d)
-  v = v/(a*e - b*d)
+--  u = u/(a*e - b*d)
+--  v = v/(a*e - b*d)
   
   return u, v
 end
@@ -201,8 +203,10 @@ local function affineWarp( img, q )
       -- check for upper or lower triangle and apply coefficients
       if ((lineM * x)+lineB >= y) then
         u,v = getAffineWarpUV(x, y, a1, b1, c, d1, e1, f)
+        --print("Using (" .. x .. ", " .. y .. ") to get top UV... (" .. u .. ", " .. v .. ")")
       else
         u,v = getAffineWarpUV(x, y, a2, b2, c, d2, e2, f)
+--        print("get bottom UV... (" .. u .. ", " .. v .. ")")
       end
       
       -- translate origin to center
