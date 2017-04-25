@@ -393,6 +393,8 @@ function perspective(img, q)
   --create new image
   local newImg = image.flat(deltaX, deltaY, 240)
 
+  c = 0
+  f = 0
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
