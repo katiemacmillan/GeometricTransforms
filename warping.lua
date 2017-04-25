@@ -329,7 +329,7 @@ function perspective(img, q)
   -- calculate transform coefficients
   local a, b, c, d, e, f, g, h = getPerspectiveCoefficients(q, width, height)
   -- get new image dimentions
-  local deltaX,deltaY, xMin, yMin = getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
+  local deltaX,deltaY, xMin, yMin = getPerspectiveDeltas(a, b, c, d, e, f, g, h, width, height)
   --create new image
   local newImg = image.flat(deltaX, deltaY, 240)
 
