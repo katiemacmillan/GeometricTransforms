@@ -182,7 +182,7 @@ end
           e - the y direction scale coefficient 
           f - the y direction translation coefficient
   
-  Returns: 
+  Returns: new u and v
 --]]
 local function getAffineWarpUV(x, y, a, b, c, d, e, f)
   local u, v  
@@ -320,6 +320,7 @@ end
   
   Params: img - the original image
           q   - an array of user selected image translation points
+
   
   Returns: the transformed image
 --]]
@@ -357,6 +358,7 @@ end
   Params: img - the original image
   
   Returns: the distorted image
+
 --]]
 function waves(img)
   local height, width = img.height, img.width

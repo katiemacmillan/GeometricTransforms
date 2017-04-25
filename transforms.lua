@@ -8,6 +8,21 @@ local image = require "image"
 local interpolate = require "interpolate"
 local helpers = require "helpers"
 
+--[[
+  Function Name: scale
+  
+  Author: Katie MacMillan
+  
+  Description: scale takes an initial image and resizes it to a specified height
+  and width with a given interpolation.
+  
+  Params: img    - initial image
+          rows   - new height
+          cols   - new width
+          interp - type of interpolation the user wants to use
+  
+  Returns: new scaled image
+--]]
 local function scale( img, rows, cols, interp )
   local scaleX, scaleY
 
@@ -30,6 +45,20 @@ local function scale( img, rows, cols, interp )
   return newImg
 end
 
+--[[
+  Function Name: rotate
+  
+  Author: Forrest Miller
+  
+  Description: rotate takes an image and rotates it by a specified degree using
+  the interpolation specified.
+  
+  Params: img    - initial image
+          deg    - degree the user wants to rotate
+          interp - type of interpolation the user wants to use
+  
+  Returns: new image
+--]]
 local function rotate( img, deg, interp )
   local rad = deg * (math.pi / 180)
   local rows, cols = helpers.findNewSize(img.height, img.width, deg)  
@@ -43,6 +72,7 @@ local function rotate( img, deg, interp )
       v = math.cos(rad)*y - math.sin(rad)*x
       u, v = helpers.translateCoords(u, v, rows, cols)
       x, y = helpers.translateCoords(x, y, rows, cols)
+      
       if u >= 0 and u < img.width and v >= 0 and v < img.height then
         if interp == "nearest neighbor" then
           newImg:at(y,x).rgb = {interpolate.neighbor(img, u, v)}
