@@ -22,7 +22,7 @@ local function getDeltas (q)
   if q[2].y < yMin then yMin = q[2].y end
   if q[3].y > yMax then yMax = q[3].y end
   
-  return xMax - xMin, yMax - yMin
+  return math.floor(xMax - xMin + 1.5), math.floor(yMax - yMin + 1.5), math.floor(xMin+0.5), math.floor(yMin+0.5)
 end
 
 --[[

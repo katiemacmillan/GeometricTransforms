@@ -30,22 +30,16 @@ local helpers = require "helpers"
   Returns: delta x, delta y, x min and y min
 --]]
 local function getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
-  local u = {width/-2, width/2, width/2, width/-2}
-  local v = {height/-2, height/-2, height/2, height/2}
+  local u = {0, width, width, 0}
+  local v = {0, 0, height, height}
   local x = {}
   local y = {}
   
   for i = 1, 4 do
     x[i] = (a*u[i] + b*v[i] + c)/(g*u[i] + h*v[i] + 1)
---    x[i] = x[i] + width/2
     y[i] = (d*u[i] + e*v[i] + f)/(g*u[i] + h*v[i] + 1)
---    y[i] = y[i] + height/2
   end
 
-  print ("P1: (" .. x[1] .. "," .. y[1] .. ")") 
-  print ("P2: (" .. x[2] .. "," .. y[2] .. ")") 
-  print ("P3: (" .. x[3] .. "," .. y[3] .. ")") 
-  print ("P4: (" .. x[4] .. "," .. y[4] .. ")") 
   local xMin, xMax = x[1], x[1]
   local yMin, yMax = y[1], y[1]
   
@@ -55,10 +49,13 @@ local function getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
     if y[i] < yMin then yMin = y[i] end
     if y[i] > yMax then yMax = y[i] end
   end
-  print("xMin: ".. xMin .. "xMax: " .. xMax)
-  print("yMin: ".. yMin .. "yMax: " .. yMax)
   
-  return xMax - xMin, yMax - yMin, xMin, yMin
+  xMin = math.floor(xMin + 0.5)
+  yMin = math.floor(yMin + 0.5)
+  local dX = math.floor(xMax - xMin + 1.5)
+  local dY = math.floor(yMax - yMin + 1.5)
+  
+  return dX, dY, xMin, yMin
 end
 
 --[[
@@ -186,7 +183,6 @@ local function affineWarp( img, q )
   
   -- find distance between x' and y' min and max
   local deltaX, deltaY = helpers.getDeltas(q)
-  
   -- generate new image
   local newImg = image.flat(deltaX, deltaY, 240)
   
@@ -300,23 +296,14 @@ end
 function perspective(img, q)
   local width, height = img.width, img.height
   local a, b, c, d, e, f, g, h = getPerspectiveCoefficients(q, width, height)
-  local deltaX, deltaY, xMin, yMin = getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
-  local dX,dY = helpers.getDeltas(q, width, height)
-  print("QXs:  " .. q[1].x .. ", ".. q[2].x .. ", ".. q[3].x .. ", ".. q[4].x)
-  print("QYs:  " .. q[1].y .. ", ".. q[2].y .. ", ".. q[3].y .. ", ".. q[4].y)
-  print ("ds:   " .. dX .. ", " .. dY)
-  print ("deltas:   " .. deltaX .. ", " .. deltaY)
-  print ("c:  " .. c)
-  local newImg = image.flat(deltaX, deltaY, 240)
+  local deltaX,deltaY, xMin, yMin = getPerspectiveDeltas(q, a, b, c, d, e, f, g, h, width, height)
+
+  local newImg = image.flat(deltaX, deltaY, 0)
 
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
       local u,v
-      
-      x, y = helpers.translateCoords(x, y, -deltaX, -deltaY)
       u,v = getPerspectiveWarpUX(x, y, a, b, c, d, e, f, g, h)
-      u, v = helpers.translateCoords(u, v, width+xMin, height+yMin)
-      x, y = helpers.translateCoords(x, y, deltaX, deltaY)
       
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
         newImg:at(y,x).rgb = {interpolate.bilinear(img, u, v)}
