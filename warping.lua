@@ -130,6 +130,65 @@ local function getPerspectiveWarpUV(x, y, a, b, c, d, e, f, g, h)
 end
 
 --[[
+  Function Name: getAffineDeltas
+  
+  Author: Katie MacMillan
+  
+  Description: getAffineDeltas uses the forward affine transform function to 
+  calculate the minimum and maximum x and y values in order to retrieve
+  the delta x and y.
+  
+  Params: a1 - the x direction scale coefficient for the top triangle
+          a2 - the x direction scale coefficient for the bottom triangle
+          b1 - the x direction shear coefficient for the top triangle
+          b2 - the x direction shear coefficient for the bottom triangle
+          c - the x direction translation coefficient
+          d1 - the y direction shear coefficient for the top triangle
+          d2 - the y direction shear coefficient for the bottom triangle
+          e1 - the y direction scale coefficient for the top triangle
+          e2 - the y direction scale coefficient for the bottom triangle
+          f - the y direction translation coefficient
+          width - the width of the reference image
+          height - the height of the reference image
+  
+  Returns: delta x, delta y, x min and y min
+--]]
+local function getAffineDeltas(a1, a2, b1, b2, c, d1, d2, e1, e2, f, width, height)
+  -- tie point coordinates
+  local u = {0, width, width, 0}
+  local v = {0, 0, height, height}
+  local x, y
+  
+  -- default min and max to first coordinate set
+  local xMin, xMax = c, c
+  local yMin, yMax = f, f
+  -- calculate x and y coordinates for reference tie points
+  for i = 2, 4 do
+    if i < 4 then
+      x = (a1*u[i] + b1*v[i] + c)
+      y = (d1*u[i] + e1*v[i] + f)
+    else
+      x = (a2*u[i] + b2*v[i] + c)
+      y = (d2*u[i] + e2*v[i] + f)
+    end
+    if x < xMin then xMin = x end
+    if x > xMax then xMax = x end
+    if y < yMin then yMin = y end
+    if y > yMax then yMax = y end
+
+  end
+
+  -- round min and deltas
+  xMin = math.floor(xMin + 0.5)
+  yMin = math.floor(yMin + 0.5)
+  local dX = math.floor(xMax - xMin + 1.5)
+  local dY = math.floor(yMax - yMin + 1.5)
+  
+  return dX, dY, xMin, yMin
+end
+
+
+--[[
   Function Name: getAffineCoefficients
   
   Author: Katie MacMillan
@@ -215,21 +274,22 @@ end
 --]]
 local function affineWarp( img, q )
   local width, height = img.width, img.height
-  
-  -- find distance between x' and y' min and max
-  local deltaX, deltaY = helpers.getDeltas(q)
+  -- get coefficients
+  local a1,b1,d1,e1,a2,b2,d2,e2,c,f = getAffineCoefficients(q, width, height)
+    -- find distance between x' and y' min and max
+  local deltaX, deltaY, xMin, yMin = getAffineDeltas(a1, a2, b1, b2, c, d1, d2, e1, e2, f, width, height)
   -- generate new image
-  local newImg = image.flat(deltaX, deltaY, 240)
-  
+  local newImg = image.flat(deltaX, deltaY, 0)
+
   -- calculate m and b for dividing triangle line
   local lineM = (q[3].y - q[1].y)/(q[3].x - q[1].x)
   local lineB =  q[3].y - (q[3].x*lineM)
-  -- get coefficients
-  local a1,b1,d1,e1,a2,b2,d2,e2,c,f = getAffineCoefficients(q, width, height)
 
+  c = c - xMin
+  f = f - yMin
   for x = 0, deltaX-1 do
     for y = 0, deltaY-1 do
-      local u,v      
+      local u,v
       -- displace coordinates for resulting image
       x, y = helpers.translateCoords(x, y, -deltaX, -deltaY)
       
@@ -241,7 +301,7 @@ local function affineWarp( img, q )
       end
       
       -- translate origin to center
-      u, v = helpers.translateCoords(u, v, width, height)      
+      u, v = helpers.translateCoords(u, v, width, height)
       x, y = helpers.translateCoords(x, y, deltaX, deltaY)
       
       if (math.floor(u) >= 0 and math.floor(v) >= 0 and math.ceil(u) < width and math.ceil(v) < height) then
