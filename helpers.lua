@@ -30,8 +30,8 @@ end
   
   Author: Katie MacMillan
   
-  Description: translateCoords translates the current x and y by half of the
-  image height and width
+  Description: translateCoords translates the current x and y by half of a
+  given height and width
   
   Params: x      - the current x location
           y      - the current y location
