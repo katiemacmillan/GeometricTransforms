@@ -186,9 +186,14 @@ end
 --]]
 local function getAffineWarpUV(x, y, a, b, c, d, e, f)
   local u, v  
-  -- find u, use u to find v
-  u = (x*e - c*e - b*y + b*f)/(e*a - b*d)
-  v = (y - f - d*u)/e
+  -- inverse matrix equations
+  u = (x*e) - (y*b) + ((b*f) - (c*e))
+  v = (-d*x) +(y*a) + ((c*d) - (f*a))
+
+  -- divide by determinant
+  u = u/(a*e - b*d)
+  v = v/(a*e - b*d)
+
   return u, v
 end
 
@@ -288,13 +293,6 @@ local function affineTransform( img, a, b, c, d, e, f )
       helpers.translateCoords(x, y, -deltaX, -deltaY)
 
       u, v = getAffineWarpUV(x, y, a, b, c, d, e, f)
-      -- inverse transform matrix multiply
---      u = (x*e) - (y*b) + ((b*f) - (c*e))
---      v = (-d*x) +(y*a) + ((c*d) - (f*a))
-
-      -- divide by determinant
---      u = u/(a*e - b*d)
---      v = v/(a*e - b*d)
       
       -- center origin
       helpers.translateCoords(u, v, width,height)
