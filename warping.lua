@@ -279,7 +279,7 @@ local function affineWarp( img, q )
     -- find distance between x' and y' min and max
   local deltaX, deltaY, xMin, yMin = getAffineDeltas(a1, a2, b1, b2, c, d1, d2, e1, e2, f, width, height)
   -- generate new image
-  local newImg = image.flat(deltaX, deltaY, 0)
+  local newImg = image.flat(deltaX, deltaY, 240)
 
   -- calculate m and b for dividing triangle line
   local lineM = (q[3].y - q[1].y)/(q[3].x - q[1].x)
