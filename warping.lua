@@ -81,20 +81,20 @@ end
 local function getPerspectiveCoefficients(q, width, height)
   local a, b, c, d, e, f, g, h
 
-  -- calculate h based on reference image dimentions and user points
-  h =  (height*q[2].x*q[1].y-height*q[2].x*q[4].y+height*q[3].x*q[1].y-2*height*q[3].x*q[2].y+2*height*q[3].x*q[3].y-height*q[3].x*q[4].y-q[1].x*q[2].y+q[1].x*q[3].y+q[4].x*q[2].y-q[4].x*q[3].y)/(height*(height*q[2].x*q[3].y+height*q[2].x*q[4].y+height*q[3].x*q[2].y+height*q[3].x*q[4].y-q[4].x*q[2].y+q[4].x*q[3].y))
-  
+  -- calculate h based on reference image dimentions and user points  
+  h = (q[1].x*q[2].y-q[1].x*q[3].y-q[1].y*q[2].x+q[1].y*q[3].x+q[2].x*q[4].y-q[2].y*q[4].x-q[3].x*q[4].y+q[3].y*q[4].x)/(height*(q[2].x*q[3].y-q[2].x*q[4].y-q[2].y*q[3].x+q[2].y*q[4].x+q[3].x*q[4].y-q[3].y*q[4].x))
   
   -- calculate g based on h, user points and reference image dimentions
-  g = (h*height*q[3].x-q[2].x+q[3].x)/(width*(q[3].x+q[2].x))-(h*height*q[4].x-q[1].x+q[4].x)/(height*width*(q[3].x+q[2].x))
+  g = (h*q[3].x*height-h*q[4].x*height+q[1].x-q[2].x+q[3].x-q[4].x)/(width*(q[2].x-q[3].x))
+  
   -- calculate remaining coefficients
   c = q[1].x
   f = q[1].y
-  e = (q[4].y - q[1].y + h*height*q[4].y)/height
-  b = (q[4].x - q[1].x + h*height*q[4].x)/height
-  a = (q[2].x - q[1].x + g*width*q[2].x)/width
-  d = (q[2].y - q[1].y + g*width*q[2].y)/width
-
+  e = (q[4].y - f + h*height*q[4].y)/height
+  b = (q[4].x - c + h*height*q[4].x)/height
+  a = (q[2].x - c + g*width*q[2].x)/width
+  d = (q[2].y - f + g*width*q[2].y)/width
+  
   return a, b, c, d, e, f, g, h
 end
 
